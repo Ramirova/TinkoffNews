@@ -37,7 +37,7 @@ class APIClient {
         task.resume()
     }
     
-    func loadArticle(urlSlug: String, completion: @escaping (_ article: Article?, _ error: String?) -> Void) {
+    func loadArticle(urlSlug: String, completion: @escaping (_ article: NewsItem?, _ error: String?) -> Void) {
         let params = ["urlSlug" : urlSlug]
         let urlComp = NSURLComponents(string: Constants.baseURL + Constants.getArticle)!
         var items = [URLQueryItem]()
@@ -49,10 +49,8 @@ class APIClient {
             urlComp.queryItems = items
         }
         let urlRequest = URLRequest(url: urlComp.url!)
-        print(urlRequest)
         let task = URLSession.shared.dataTask(with: urlRequest) {(data, response, error) in
             guard let data = data else { return }
-            
             guard let serverResponse = try? JSONDecoder().decode(ServerOneArticleData.self, from: data) else {
                 completion(nil, "Ошибка парсинга docflow ServerOneArticleData")
                 return

@@ -9,5 +9,6 @@
 import Foundation
 
 protocol ArticleDetailsModelDelegate {
-    func loadArticle(urlSlug: String, completion: @escaping (_ article: Article?, _ error: String?) -> Void)
+    func loadArticle(urlSlug: String, completion: @escaping (_ error: String?) -> Void)
+    func getArticle(slug: String) -> FullArticleDataModel?
 }

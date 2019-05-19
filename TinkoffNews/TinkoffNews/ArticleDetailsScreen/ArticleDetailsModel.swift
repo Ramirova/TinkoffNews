@@ -9,20 +9,22 @@
 import Foundation
 
 class ArticleDetailsModel: ArticleDetailsModelDelegate {
-    let apiClient: APIClient = APIClient()
-    var article: Article!
     
-    func loadArticle(urlSlug: String, completion: @escaping (_ article: Article?, _ error: String?) -> Void) {
+    let apiClient: APIClient = APIClient()
+    
+    var coreDataManager = CoreDataManager.sharedManager
+    
+    func loadArticle(urlSlug: String, completion: @escaping (_ error: String?) -> Void) {
         apiClient.loadArticle(urlSlug: urlSlug) {
-            article, error in
-            guard let article = article else { return }
-            self.article = article
-            completion(article, error)
+            articleInfo, error in
+            guard let articleInfo = articleInfo else { return }
+            self.coreDataManager.saveFullArticle(article: articleInfo)
+            completion(error)
             return
         }
     }
     
-    func getArticle() -> Article? {
-        return article
+    func getArticle(slug: String) -> FullArticleDataModel? {
+        return self.coreDataManager.getFullArticleInfo(articleSlug: slug)
     }
 }

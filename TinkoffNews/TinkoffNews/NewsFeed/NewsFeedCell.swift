@@ -13,7 +13,7 @@ class NewsFeedCell: UITableViewCell {
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var counterLabel: UILabel!
-    
+
     
     func setTitle(text: String) {
         titleLabel.text = text
@@ -23,7 +23,7 @@ class NewsFeedCell: UITableViewCell {
      descriptionLabel.text = text
     }
     
-    func setViewsCount(_ count: String) {
-        counterLabel.text = count
+    func setViewsCount(_ count: Int) {
+        counterLabel.text = "Просмотрено \(count) " + DateTimeHelper.getTimexCountInRightForm(forNumber: count)
     }
 }

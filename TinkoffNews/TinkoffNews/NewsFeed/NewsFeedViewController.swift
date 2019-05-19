@@ -34,12 +34,12 @@ class NewsFeedViewController: UIViewController {
         newsFeedTableView.dataSource = self
         newsFeedTableView.addSubview(self.refreshControl)
         title = "Новости"
-        vonfigurePagingSpinner()
+        configurePagingSpinner()
         registerCell()
-        loadData()
+        loadData(refreshFlag: false)
     }
     
-    func vonfigurePagingSpinner() {
+    func configurePagingSpinner() {
         pagingSpinner.color = UIColor(red: 22.0 / 255.0, green: 106.0 / 255.0, blue: 176.0 / 255.0, alpha: 1.0)
         pagingSpinner.hidesWhenStopped = true
         pagingSpinner.stopAnimating()
@@ -49,7 +49,7 @@ class NewsFeedViewController: UIViewController {
     
     @objc func handleRefresh(_ refreshControl: UIRefreshControl) {
         currentNewsOffset = 0
-        loadData()
+        loadData(refreshFlag: true)
     }
     
     func registerCell() {
@@ -57,9 +57,6 @@ class NewsFeedViewController: UIViewController {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let currentOffset = scrollView.contentOffset.y
-        let maximumOffset = scrollView.contentSize.height - scrollView.frame.size.height
-        let deltaOffset = maximumOffset - currentOffset
         if (scrollView.contentOffset.y >= (scrollView.contentSize.height - scrollView.frame.size.height)) {
             loadMoreData()
         }
@@ -84,7 +81,7 @@ class NewsFeedViewController: UIViewController {
             pagingSpinner.isHidden = false
             loadingMoreData = true
             self.currentNewsOffset += self.numberOfNewsInPage
-            model.loadData(pageSize: numberOfNewsInPage, pageOffset: currentNewsOffset) {
+            model.loadData(refreshFlag: false, pageSize: numberOfNewsInPage, pageOffset: currentNewsOffset) {
                 articles, error in
                 DispatchQueue.main.async {
                     self.hidePagingSpinner()
@@ -100,13 +97,12 @@ class NewsFeedViewController: UIViewController {
         }
     }
     
-    func loadData() {
+    func loadData(refreshFlag: Bool) {
         if !loadingData {
             loadingData = true
             disableRefreshControl()
-            model.loadData(pageSize: numberOfNewsInPage, pageOffset: currentNewsOffset) {
+            model.loadData(refreshFlag: refreshFlag, pageSize: numberOfNewsInPage, pageOffset: currentNewsOffset) {
                 articles, error in
-                
                 DispatchQueue.main.async {
                     self.loadingData = false
                     self.refreshControl.endRefreshing()
@@ -146,9 +142,15 @@ extension NewsFeedViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = newsFeedTableView.dequeueReusableCell(withIdentifier: "NewsFeedCellPrototype", for: indexPath) as! NewsFeedCell
         let articleInfo = model.getArticles()[indexPath.row]
-        cell.setTitle(text: articleInfo.title)
-        cell.setDescription(text: articleInfo.textshort)
-        cell.setViewsCount(articleInfo.desktops ?? "0")
+        if let title = articleInfo.title {
+            cell.setTitle(text: title)
+        }
+        if let textShort = articleInfo.textShort {
+            cell.setDescription(text: textShort)
+        }
+        if let clickCounter = articleInfo.clickCounter {
+            cell.setViewsCount(clickCounter as! Int)
+        }
         cell.selectionStyle = .none
         return cell
     }
@@ -156,7 +158,18 @@ extension NewsFeedViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let controller = storyboard.instantiateViewController(withIdentifier: "articleDetailsViewController") as! ArticleDetailsViewController
-        controller.setURLSlug(model.getArticles()[indexPath.row].slug)
-        self.navigationController?.pushViewController(controller, animated: false)
+        CoreDataManager.sharedManager.incrementClickCounter(article: model.getArticles()[indexPath.row])
+        updateCellClickCounter(atIndexPath: indexPath)
+        if let slug = model.getArticles()[indexPath.row].slug {
+            controller.setURLSlug(slug)
+            self.navigationController?.pushViewController(controller, animated: false)
+        }
+    }
+    
+    func updateCellClickCounter(atIndexPath: IndexPath) {
+        let cell = newsFeedTableView.cellForRow(at: atIndexPath) as! NewsFeedCell
+        if let currentClicksCount = model.getArticles()[atIndexPath.row].clickCounter {
+            cell.setViewsCount(currentClicksCount as! Int)
+        }
     }
 }

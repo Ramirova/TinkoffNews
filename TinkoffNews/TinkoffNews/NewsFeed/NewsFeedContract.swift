@@ -10,7 +10,7 @@ import Foundation
 
 
 protocol NewsFeedModelDelegate {
-    func loadData(pageSize: Int, pageOffset: Int, completion: @escaping (_ articles: [Article]?, _ error: String?) -> Void)
-    func getArticles() -> [Article]
+    func loadData(refreshFlag: Bool, pageSize: Int, pageOffset: Int, completion: @escaping (_ articles: [ArticleDataModel]?, _ error: String?) -> Void) 
+    func getArticles() -> [ArticleDataModel]
     
 }

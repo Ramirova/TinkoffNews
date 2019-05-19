@@ -16,7 +16,7 @@ struct ServerResponseData: Codable {
 }
 
 struct ServerResponse: Codable {
-    var news: [Article]
+    var news: [NewsItem]
     var total: Int
     private enum CodingKeys: String, CodingKey {
         case news
@@ -25,26 +25,26 @@ struct ServerResponse: Codable {
 }
 
 struct ServerOneArticleData: Codable {
-    var response: Article
+    var response: NewsItem
     private enum CodingKeys: String, CodingKey {
         case response
     }
 }
 
-struct Article: Codable {
+struct NewsItem: Codable {
     var id: String
     var title: String
     var image: String?
-    var lang: String
-    var createdTime: String
-    var deleted: Bool
-    var hidden: Bool
-    var updatedTime: String
+    var lang: String?
+    var createdTime: String?
+    var deleted: Bool?
+    var hidden: Bool?
+    var updatedTime: String?
     var slug: String
     var date: String
-    var parts: [ArticlePart]
-    var tags: [ArticleTag]
-    var references: [ArticleReference]
+    var parts: [ArticlePart]?
+    var tags: [ArticleTag]?
+    var references: [ArticleReference]?
     var disclaimer: String?
     var desktopl: String?
     var desktops: String?

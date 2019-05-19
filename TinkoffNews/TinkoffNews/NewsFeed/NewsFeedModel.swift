@@ -7,34 +7,33 @@
 //
 
 import Foundation
-
+import CoreData
 
 class NewsFeedModel: NewsFeedModelDelegate {
     
     var apiClient: APIClient = APIClient()
-    var articles: [Article] = [Article]()
     var totalNews: Int? = nil
-    init() {
-        
-    }
+    var coreDataManager = CoreDataManager.sharedManager
     
-    func loadData(pageSize: Int, pageOffset: Int, completion: @escaping (_ articles: [Article]?, _ error: String?) -> Void) {
-        if pageOffset == 0 {
-            articles = [Article]()
+    func loadData(refreshFlag: Bool, pageSize: Int, pageOffset: Int, completion: @escaping (_ articles: [ArticleDataModel]?, _ error: String?) -> Void) {
+        if refreshFlag {
+            coreDataManager.deleteNews()
         }
         if totalNews == nil || totalNews! > pageOffset + pageSize {
             apiClient.loadArticles(pageSize: pageSize, pageOffset: pageOffset) {
                 responseData, error in
                 guard let responseData = responseData else { return }
-                self.articles.append(contentsOf: responseData.response.news)
+                for article in responseData.response.news {
+                    self.coreDataManager.save(article: article)
+                }
                 self.totalNews = responseData.response.total
-                completion(self.articles, error)
+                completion(self.coreDataManager.fetchAllArticles() ?? [ArticleDataModel](), error)
                 return
             }
         }
     }
     
-    func getArticles() -> [Article] {
-        return articles
+    func getArticles() -> [ArticleDataModel] {
+        return self.coreDataManager.fetchAllArticles() ?? [ArticleDataModel]()
     }
 }
