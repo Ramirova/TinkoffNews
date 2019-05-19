@@ -10,7 +10,6 @@ import Foundation
 
 struct ServerResponseData: Codable {
     var response: ServerResponse
-    
     private enum CodingKeys: String, CodingKey {
         case response
     }
@@ -19,10 +18,16 @@ struct ServerResponseData: Codable {
 struct ServerResponse: Codable {
     var news: [Article]
     var total: Int
-    
     private enum CodingKeys: String, CodingKey {
         case news
         case total
+    }
+}
+
+struct ServerOneArticleData: Codable {
+    var response: Article
+    private enum CodingKeys: String, CodingKey {
+        case response
     }
 }
 

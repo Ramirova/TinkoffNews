@@ -33,6 +33,7 @@ class NewsFeedViewController: UIViewController {
         newsFeedTableView.delegate = self
         newsFeedTableView.dataSource = self
         newsFeedTableView.addSubview(self.refreshControl)
+        title = "Новости"
         vonfigurePagingSpinner()
         registerCell()
         loadData()
@@ -59,7 +60,6 @@ class NewsFeedViewController: UIViewController {
         let currentOffset = scrollView.contentOffset.y
         let maximumOffset = scrollView.contentSize.height - scrollView.frame.size.height
         let deltaOffset = maximumOffset - currentOffset
-        print(deltaOffset)
         if (scrollView.contentOffset.y >= (scrollView.contentSize.height - scrollView.frame.size.height)) {
             loadMoreData()
         }
@@ -83,7 +83,6 @@ class NewsFeedViewController: UIViewController {
         if !loadingData && !loadingMoreData {
             pagingSpinner.isHidden = false
             loadingMoreData = true
-            print("Loading more data")
             self.currentNewsOffset += self.numberOfNewsInPage
             model.loadData(pageSize: numberOfNewsInPage, pageOffset: currentNewsOffset) {
                 articles, error in
@@ -102,9 +101,7 @@ class NewsFeedViewController: UIViewController {
     }
     
     func loadData() {
-        print(currentNewsOffset)
         if !loadingData {
-            print("Loading data")
             loadingData = true
             disableRefreshControl()
             model.loadData(pageSize: numberOfNewsInPage, pageOffset: currentNewsOffset) {
@@ -114,7 +111,6 @@ class NewsFeedViewController: UIViewController {
                     self.loadingData = false
                     self.refreshControl.endRefreshing()
                     self.enableRefreshControl()
-                    print("Refreshing tableview")
                     if error == nil && articles != nil {
                         self.currentNewsOffset = 0
                         self.newsFeedTableView.reloadData()
@@ -149,7 +145,6 @@ extension NewsFeedViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = newsFeedTableView.dequeueReusableCell(withIdentifier: "NewsFeedCellPrototype", for: indexPath) as! NewsFeedCell
-        print(model.getArticles().count)
         let articleInfo = model.getArticles()[indexPath.row]
         cell.setTitle(text: articleInfo.title)
         cell.setDescription(text: articleInfo.textshort)
@@ -159,6 +154,9 @@ extension NewsFeedViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let controller = storyboard.instantiateViewController(withIdentifier: "articleDetailsViewController") as! ArticleDetailsViewController
+        controller.setURLSlug(model.getArticles()[indexPath.row].slug)
+        self.navigationController?.pushViewController(controller, animated: false)
     }
 }

@@ -11,4 +11,5 @@ import Foundation
 class Constants {
     static let baseURL = "https://cfg.tinkoff.ru/news/public/api/platform/v1/"
     static let getArticles = "getArticles"
+    static let getArticle = "getArticle"
 }
