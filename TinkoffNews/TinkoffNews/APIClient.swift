@@ -10,26 +10,21 @@ import Foundation
 
 class APIClient {
     
-    func loadArticles(pageSize: Int, pageOffset: Int, completion: @escaping (_ serverResponseData: ServerResponseData?, _ error: String?) -> Void) {
-        let params = ["pageSize" : String(pageSize), "pageOffset": String(pageOffset)]
-        let urlComp = NSURLComponents(string: Constants.baseURL + Constants.getArticles)!
-        var items = [URLQueryItem]()
-        for (key,value) in params {
-            items.append(URLQueryItem(name: key, value: value))
-        }
-        items = items.filter{!$0.name.isEmpty}
-        if !items.isEmpty {
-            urlComp.queryItems = items
-        }
-        var urlRequest = URLRequest(url: urlComp.url!)
-        
+    
+    func loadArticles(pageSize: Int, pageOffset: Int, completion: @escaping (_ serverResponseData: ServerResponseData?, _ error: ErrorType?) -> Void) {
+        var urlRequest = getURLRequest(params: ["pageSize" : String(pageSize), "pageOffset": String(pageOffset)], urlString: Constants.baseURL + Constants.getArticles)
         urlRequest.setValue(String(pageSize), forHTTPHeaderField: "pageSize")
         urlRequest.setValue(String(pageOffset), forHTTPHeaderField: "pageOffset")
         let task = URLSession.shared.dataTask(with: urlRequest) {(data, response, error) in
-            guard let data = data else { return }
-            
+            guard let data = data else {
+                if response == nil {
+                    completion(nil, .noInternetConnection)
+                    return
+                }
+                return
+            }
             guard let serverResponse = try? JSONDecoder().decode(ServerResponseData.self, from: data) else {
-                completion(nil, "Ошибка парсинга docflow ServerResponseData")
+                completion(nil, .jsonParsongError)
                 return
             }
             completion(serverResponse, nil)
@@ -37,9 +32,26 @@ class APIClient {
         task.resume()
     }
     
-    func loadArticle(urlSlug: String, completion: @escaping (_ article: NewsItem?, _ error: String?) -> Void) {
-        let params = ["urlSlug" : urlSlug]
-        let urlComp = NSURLComponents(string: Constants.baseURL + Constants.getArticle)!
+    func loadArticle(urlSlug: String, completion: @escaping (_ article: NewsItem?, _ error: ErrorType?) -> Void) {
+        let task = URLSession.shared.dataTask(with: getURLRequest(params: ["urlSlug": urlSlug], urlString: Constants.baseURL + Constants.getArticle)) {(data, response, error) in
+            guard let data = data else {
+                if response == nil {
+                    completion(nil, .noInternetConnection)
+                    return
+                }
+                return
+            }
+            guard let serverResponse = try? JSONDecoder().decode(ServerOneArticleData.self, from: data) else {
+                completion(nil, .jsonParsongError)
+                return
+            }
+            completion(serverResponse.response, nil)
+        }
+        task.resume()
+    }
+    
+    func getURLRequest(params: [String: String], urlString: String) -> URLRequest {
+        let urlComp = NSURLComponents(string: urlString)!
         var items = [URLQueryItem]()
         for (key,value) in params {
             items.append(URLQueryItem(name: key, value: value))
@@ -48,15 +60,6 @@ class APIClient {
         if !items.isEmpty {
             urlComp.queryItems = items
         }
-        let urlRequest = URLRequest(url: urlComp.url!)
-        let task = URLSession.shared.dataTask(with: urlRequest) {(data, response, error) in
-            guard let data = data else { return }
-            guard let serverResponse = try? JSONDecoder().decode(ServerOneArticleData.self, from: data) else {
-                completion(nil, "Ошибка парсинга docflow ServerOneArticleData")
-                return
-            }
-            completion(serverResponse.response, nil)
-        }
-        task.resume()
+        return URLRequest(url: urlComp.url!)
     }
 }

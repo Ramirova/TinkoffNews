@@ -82,15 +82,17 @@ class NewsFeedViewController: UIViewController {
             loadingMoreData = true
             self.currentNewsOffset += self.numberOfNewsInPage
             model.loadData(refreshFlag: false, pageSize: numberOfNewsInPage, pageOffset: currentNewsOffset) {
-                articles, error in
+                error in
                 DispatchQueue.main.async {
                     self.hidePagingSpinner()
                     self.refreshControl.endRefreshing()
                     self.enableRefreshControl()
                     self.loadingMoreData = false
-                    if error == nil && articles != nil {
+                    if let error = error {
+                        self.handleError(error: error)
+                    } else {
+                        self.currentNewsOffset = 0
                         self.newsFeedTableView.reloadData()
-                        
                     }
                 }
             }
@@ -102,12 +104,14 @@ class NewsFeedViewController: UIViewController {
             loadingData = true
             disableRefreshControl()
             model.loadData(refreshFlag: refreshFlag, pageSize: numberOfNewsInPage, pageOffset: currentNewsOffset) {
-                articles, error in
+                error in
                 DispatchQueue.main.async {
                     self.loadingData = false
                     self.refreshControl.endRefreshing()
                     self.enableRefreshControl()
-                    if error == nil && articles != nil {
+                    if let error = error {
+                        self.handleError(error: error)
+                    } else {
                         self.currentNewsOffset = 0
                         self.newsFeedTableView.reloadData()
                     }
@@ -118,6 +122,23 @@ class NewsFeedViewController: UIViewController {
     
     func stopRefreshControl() {
         refreshControl.endRefreshing()
+    }
+    
+    func handleError(error: ErrorType) {
+        switch error {
+        case .noInternetConnection:
+            self.showAlert(title: Constants.noInternetConnectionErrorTitle, message: Constants.noInternetConnectionErrorTitle)
+        case .serverError:
+            self.showAlert(title: Constants.serverErrorTitle, message: Constants.serverErrorMessage)
+        default:
+            self.showAlert(title: "Простите, возникла ошибка", message: "")
+        }
+    }
+    
+    func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Ок", style: UIAlertAction.Style.default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
 }
 

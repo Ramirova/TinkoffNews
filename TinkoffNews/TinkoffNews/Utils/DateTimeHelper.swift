@@ -11,7 +11,6 @@ import Foundation
 class DateTimeHelper {
     static func getFormattedDate(date: String) -> String {
         let dateFormatter = DateFormatter()
-        let dateObj = getDateObj(date: date)
         dateFormatter.dateFormat = "dd.MM.yyyy, HH:mm"
         return dateFormatter.string(from: getDateObj(date: date))
     }

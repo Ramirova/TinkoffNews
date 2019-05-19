@@ -15,7 +15,7 @@ class NewsFeedModel: NewsFeedModelDelegate {
     var totalNews: Int? = nil
     var coreDataManager = CoreDataManager.sharedManager
     
-    func loadData(refreshFlag: Bool, pageSize: Int, pageOffset: Int, completion: @escaping (_ articles: [ArticleDataModel]?, _ error: String?) -> Void) {
+    func loadData(refreshFlag: Bool, pageSize: Int, pageOffset: Int, completion: @escaping (_ error: ErrorType?) -> Void) {
         if refreshFlag {
             coreDataManager.deleteNews()
         }
@@ -27,7 +27,7 @@ class NewsFeedModel: NewsFeedModelDelegate {
                     self.coreDataManager.save(article: article)
                 }
                 self.totalNews = responseData.response.total
-                completion(self.coreDataManager.fetchAllArticles() ?? [ArticleDataModel](), error)
+                completion(error)
                 return
             }
         }

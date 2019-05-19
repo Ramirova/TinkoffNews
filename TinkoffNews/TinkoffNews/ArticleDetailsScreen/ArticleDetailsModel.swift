@@ -11,10 +11,9 @@ import Foundation
 class ArticleDetailsModel: ArticleDetailsModelDelegate {
     
     let apiClient: APIClient = APIClient()
-    
     var coreDataManager = CoreDataManager.sharedManager
     
-    func loadArticle(urlSlug: String, completion: @escaping (_ error: String?) -> Void) {
+    func loadArticle(urlSlug: String, completion: @escaping (_ error: ErrorType?) -> Void) {
         apiClient.loadArticle(urlSlug: urlSlug) {
             articleInfo, error in
             guard let articleInfo = articleInfo else { return }

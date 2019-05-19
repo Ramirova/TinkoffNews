@@ -25,13 +25,32 @@ class ArticleDetailsViewController: UIViewController {
         if let urlSlug = urlSlug {
             self.model.loadArticle(urlSlug: urlSlug) {
                 error in
-                if error == nil {
-                    DispatchQueue.main.async {
+                DispatchQueue.main.async {
+                    if let error = error {
+                        self.handleError(error: error)
+                    } else {
                         self.configureView()
                     }
                 }
             }
         }
+    }
+    
+    func handleError(error: ErrorType) {
+        switch error {
+        case .noInternetConnection:
+            self.showAlert(title: Constants.noInternetConnectionErrorTitle, message: Constants.noInternetConnectionErrorTitle)
+        case .serverError:
+            self.showAlert(title: Constants.serverErrorTitle, message: Constants.serverErrorMessage)
+        default:
+            self.showAlert(title: "Простите, возникла ошибка", message: "")
+        }
+    }
+    
+    func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Ок", style: UIAlertAction.Style.default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
     
     func configureView() {
