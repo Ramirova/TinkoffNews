@@ -142,9 +142,7 @@ class NewsFeedViewController: UIViewController {
     }
 }
 
-extension NewsFeedViewController: UITableViewDelegate {
-    
-}
+extension NewsFeedViewController: UITableViewDelegate { }
 
 extension NewsFeedViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -162,17 +160,19 @@ extension NewsFeedViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = newsFeedTableView.dequeueReusableCell(withIdentifier: "NewsFeedCellPrototype", for: indexPath) as! NewsFeedCell
-        let articleInfo = model.getArticles()[indexPath.row]
-        if let title = articleInfo.title {
-            cell.setTitle(text: title)
+        if indexPath.row < model.getArticles().count {
+            let articleInfo = model.getArticles()[indexPath.row]
+            if let title = articleInfo.title {
+                cell.setTitle(text: title)
+            }
+            if let textShort = articleInfo.textShort {
+                cell.setDescription(text: textShort)
+            }
+            if let clickCounter = articleInfo.clickCounter {
+                cell.setViewsCount(clickCounter as! Int)
+            }
+            cell.selectionStyle = .none
         }
-        if let textShort = articleInfo.textShort {
-            cell.setDescription(text: textShort)
-        }
-        if let clickCounter = articleInfo.clickCounter {
-            cell.setViewsCount(clickCounter as! Int)
-        }
-        cell.selectionStyle = .none
         return cell
     }
     

@@ -146,6 +146,7 @@
 				0B8C5AC22291764000AC6730 /* Utils */,
 				0B68EB88228EFA440067C44D /* Domain */,
 				0B68EB87228EFA280067C44D /* Resources */,
+				0B68EB50228EEB150067C44D /* Info.plist */,
 			);
 			path = TinkoffNews;
 			sourceTree = "<group>";
@@ -182,7 +183,6 @@
 		0B68EB87228EFA280067C44D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				0B68EB50228EEB150067C44D /* Info.plist */,
 				0B68EB4B228EEB150067C44D /* Assets.xcassets */,
 			);
 			path = Resources;
